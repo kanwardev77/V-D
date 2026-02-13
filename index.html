@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How Well Do You Know Me</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-1: #1a0011;
+        --bg-2: #390028;
+        --bg-3: #7b103e;
+        --accent: #ff4f87;
+        --text: #fff8fc;
+        --muted: #ffd9e8;
+        --good: #7dffb4;
+        --bad: #ffc6d4;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Manrope", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 20% 10%, #ff7ba61a, transparent 35%),
+          radial-gradient(circle at 80% 0%, #ff4f8735, transparent 30%),
+          linear-gradient(125deg, var(--bg-1), var(--bg-2) 45%, var(--bg-3));
+        display: grid;
+        place-items: center;
+        padding: 16px;
+      }
+
+      .card {
+        width: min(760px, 100%);
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 16px 40px #00000040;
+        padding: 28px;
+      }
+
+      h1 {
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(2rem, 6vw, 3.2rem);
+        margin: 0 0 14px;
+        text-align: center;
+      }
+
+      .center {
+        text-align: center;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .progress {
+        color: var(--muted);
+        margin: 0 0 14px;
+        font-weight: 700;
+      }
+
+      .question {
+        font-size: clamp(1.1rem, 3vw, 1.45rem);
+        line-height: 1.45;
+        font-weight: 700;
+        margin: 0 0 18px;
+      }
+
+      .answers {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .answer {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 14px;
+        padding: 12px 14px;
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--text);
+        text-align: left;
+        font-size: 0.98rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .answer:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .answer:disabled {
+        cursor: not-allowed;
+      }
+
+      .answer.correct {
+        border-color: #46ff9f;
+        background: #2eff9426;
+      }
+
+      .answer.wrong {
+        border-color: #ff9ab9;
+        background: #ff4f8728;
+      }
+
+      .controls {
+        margin-top: 18px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-radius: 999px;
+        padding: 10px 18px;
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.14);
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .btn.primary {
+        background: linear-gradient(120deg, #ff4f877a, #ff9f6b7a);
+      }
+
+      .btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      .message {
+        margin-top: 14px;
+        min-height: 1.4em;
+        text-align: center;
+        font-weight: 700;
+      }
+
+      .message.good {
+        color: var(--good);
+      }
+
+      .message.bad {
+        color: var(--bad);
+      }
+
+      .final-title {
+        margin-bottom: 8px;
+      }
+
+      .subq-wrap {
+        display: grid;
+        gap: 10px;
+        margin: 18px 0 10px;
+        text-align: left;
+      }
+
+      .subq {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .subq label {
+        font-weight: 600;
+      }
+
+      .char-input {
+        width: 56px;
+        text-align: center;
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-radius: 10px;
+        padding: 9px 8px;
+      }
+
+      .word-flip {
+        margin: 22px auto 8px;
+        font-size: clamp(2rem, 8vw, 3.2rem);
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        transform-style: preserve-3d;
+        transition: transform 850ms ease, color 850ms ease;
+      }
+
+      .word-flip.flip {
+        transform: rotateY(180deg);
+        color: #ffd9e8;
+      }
+
+      .proposal {
+        margin: 8px 0 0;
+        line-height: 1.5;
+        font-weight: 700;
+      }
+
+      @media (max-width: 700px) {
+        .answers {
+          grid-template-columns: 1fr;
+        }
+
+        .card {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <section id="intro" class="center">
+        <h1>how well do you know me</h1>
+        <div class="controls">
+          <button class="btn primary" id="startBtn">Start over</button>
+        </div>
+      </section>
+
+      <section id="quiz" class="hidden">
+        <p class="progress" id="progress"></p>
+        <p class="question" id="question"></p>
+        <div class="answers" id="answers"></div>
+        <p class="message" id="message"></p>
+        <div class="controls">
+          <button class="btn" id="nextBtn" disabled>Next question</button>
+          <button class="btn" id="resetBtn">Start over</button>
+        </div>
+      </section>
+
+      <section id="result" class="hidden center">
+        <h1 class="final-title">Final question</h1>
+        <p class="question">Answer these 3 subquestions with one character each.</p>
+        <div class="subq-wrap">
+          <div class="subq">
+            <label for="sq1">1) If the Letter Z don't exist, what would be the last alphabet ?</label>
+            <input id="sq1" class="char-input" maxlength="1" pattern="[A-Za-z0-9]" autocomplete="off" />
+          </div>
+          <div class="subq">
+            <label for="sq2">2) How many words are there in \"I Love You\" ?</label>
+            <input id="sq2" class="char-input" maxlength="1" pattern="[A-Za-z0-9]" autocomplete="off" />
+          </div>
+          <div class="subq">
+            <label for="sq3">3) if there was no U, what would happen to US ?</label>
+            <input id="sq3" class="char-input" maxlength="1" pattern="[A-Za-z0-9]" autocomplete="off" />
+          </div>
+        </div>
+        <p class="message" id="finalMsg"></p>
+        <div id="flipWord" class="word-flip hidden">Y3S</div>
+        <p id="proposalText" class="proposal hidden">
+          Will you be my Valentine?<br />
+          You answered : YES.
+        </p>
+        <div class="controls">
+          <button class="btn" id="lockBtn">Lock answer</button>
+          <button class="btn primary" id="playAgainBtn">Start over</button>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const questions = [
+        {
+          text: "When do i usually get up in the morning?",
+          options: ["730", "1030", "1130", "Whenever u miss me"],
+          correct: 3,
+        },
+        {
+          text: "What was i wearing when we met for the first time",
+          options: ["Jacket,pants", "coat", "nothing", "your smile"],
+          correct: 0,
+        },
+        {
+          text: "Who is my fav music artist?",
+          options: ["Seedhe Maut", "Papon", "Krsna", "Badshah"],
+          correct: 0,
+        },
+        {
+          text: "What's that one thing i like about you the most?",
+          options: ["eyes", "smile", "confused face", "all of the above"],
+          correct: 3,
+        },
+        {
+          text: "Do you think you can make me cook everyday for you after the distance ends?",
+          options: ["yes", "maybe", "hell yessssss", "hahahah i wish :("],
+          correct: 3,
+        },
+      ];
+
+      const el = {
+        intro: document.getElementById("intro"),
+        quiz: document.getElementById("quiz"),
+        result: document.getElementById("result"),
+        question: document.getElementById("question"),
+        answers: document.getElementById("answers"),
+        progress: document.getElementById("progress"),
+        message: document.getElementById("message"),
+        nextBtn: document.getElementById("nextBtn"),
+        resetBtn: document.getElementById("resetBtn"),
+        startBtn: document.getElementById("startBtn"),
+        playAgainBtn: document.getElementById("playAgainBtn"),
+        sq1: document.getElementById("sq1"),
+        sq2: document.getElementById("sq2"),
+        sq3: document.getElementById("sq3"),
+        lockBtn: document.getElementById("lockBtn"),
+        finalMsg: document.getElementById("finalMsg"),
+        flipWord: document.getElementById("flipWord"),
+        proposalText: document.getElementById("proposalText"),
+      };
+
+      let current = 0;
+      let score = 0;
+      let answered = false;
+
+      function showScreen(name) {
+        el.intro.classList.add("hidden");
+        el.quiz.classList.add("hidden");
+        el.result.classList.add("hidden");
+        el[name].classList.remove("hidden");
+      }
+
+      function resetGame() {
+        current = 0;
+        score = 0;
+        answered = false;
+        el.nextBtn.textContent = "Next question";
+        el.nextBtn.disabled = true;
+        el.message.textContent = "";
+        el.message.className = "message";
+        el.finalMsg.textContent = "";
+        el.finalMsg.className = "message";
+        el.sq1.value = "";
+        el.sq2.value = "";
+        el.sq3.value = "";
+        el.sq1.disabled = false;
+        el.sq2.disabled = false;
+        el.sq3.disabled = false;
+        el.lockBtn.disabled = false;
+        el.flipWord.textContent = "Y3S";
+        el.flipWord.classList.add("hidden");
+        el.flipWord.classList.remove("flip");
+        el.proposalText.classList.add("hidden");
+        showScreen("intro");
+      }
+
+      function loadQuestion() {
+        answered = false;
+        const q = questions[current];
+        el.progress.textContent = `Question ${current + 1} of ${questions.length}`;
+        el.question.textContent = q.text;
+        el.answers.innerHTML = "";
+        el.nextBtn.disabled = true;
+        el.message.textContent = "";
+        el.message.className = "message";
+
+        q.options.forEach((option, index) => {
+          const btn = document.createElement("button");
+          btn.className = "answer";
+          btn.textContent = `${String.fromCharCode(65 + index)}) ${option}`;
+          btn.addEventListener("click", () => selectAnswer(index));
+          el.answers.appendChild(btn);
+        });
+      }
+
+      function selectAnswer(index) {
+        if (answered) return;
+        answered = true;
+        const q = questions[current];
+        const allButtons = [...el.answers.children];
+
+        allButtons.forEach((btn) => (btn.disabled = true));
+        allButtons[q.correct].classList.add("correct");
+
+        if (index === q.correct) {
+          score += 1;
+          el.message.textContent = "Correct answer.";
+          el.message.className = "message good";
+        } else {
+          allButtons[index].classList.add("wrong");
+          el.message.textContent = "Wrong answer.";
+          el.message.className = "message bad";
+        }
+
+        el.nextBtn.disabled = false;
+        if (current === questions.length - 1) {
+          el.nextBtn.textContent = "Final question";
+        }
+      }
+
+      function goNext() {
+        if (!answered) return;
+        if (current < questions.length - 1) {
+          current += 1;
+          loadQuestion();
+          return;
+        }
+
+        showScreen("result");
+      }
+
+      function lockFinalAnswer() {
+        const pieces = [el.sq1.value, el.sq2.value, el.sq3.value].map((v) => v.trim().toUpperCase());
+        const isAlphaNum = pieces.every((ch) => /^[A-Z0-9]$/.test(ch));
+        const combined = pieces.join("");
+        if (combined.length !== 3) {
+          el.finalMsg.textContent = "Enter one character in each box.";
+          el.finalMsg.className = "message bad";
+          return;
+        }
+
+        if (!isAlphaNum) {
+          el.finalMsg.textContent = "Use one letter or digit in each box.";
+          el.finalMsg.className = "message bad";
+          return;
+        }
+
+        if (combined !== "Y3S") {
+          el.finalMsg.textContent = "Not quite. Try again.";
+          el.finalMsg.className = "message bad";
+          return;
+        }
+
+        el.sq1.disabled = true;
+        el.sq2.disabled = true;
+        el.sq3.disabled = true;
+        el.lockBtn.disabled = true;
+        el.finalMsg.textContent = "Answer locked.";
+        el.finalMsg.className = "message good";
+
+        el.flipWord.classList.remove("hidden");
+        setTimeout(() => {
+          el.flipWord.classList.add("flip");
+        }, 150);
+        setTimeout(() => {
+          el.flipWord.textContent = "YES";
+          el.proposalText.classList.remove("hidden");
+        }, 900);
+      }
+
+      el.startBtn.addEventListener("click", () => {
+        showScreen("quiz");
+        loadQuestion();
+      });
+
+      el.nextBtn.addEventListener("click", goNext);
+      el.resetBtn.addEventListener("click", resetGame);
+      el.playAgainBtn.addEventListener("click", resetGame);
+      el.lockBtn.addEventListener("click", lockFinalAnswer);
+
+      resetGame();
+    </script>
+  </body>
+</html>
